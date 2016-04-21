@@ -1,0 +1,33 @@
+{% extends "django_data_sync/material/sync_app_model.html" %}
+
+
+{% block page_title %}
+  <i class="fa fa-database"></i> Delete App Model
+{% endblock page_title %}
+
+
+{% block breadcrumbs %}
+  {{ block.super }}
+  <li>
+    <span class="divider">&raquo;</span>
+    <a href="{% url 'django_data_sync:sync_app_model_delete' sync_app_model.id %}">Delete</a>
+  </li>
+{% endblock breadcrumbs %}
+
+
+{% block content %}
+
+  <div class="bs-callout bs-callout-danger">
+    <h3>{{ sync_app_model }}</h3>
+    <p>Are you sure you want to delete this App Model?</p>
+    <div class="align-center">
+      <form action="{% url 'django_data_sync:sync_app_model_delete' sync_app_model.id %}" method="post">
+        {% csrf_token %}
+        <input type="submit" class="btn red" value="Delete" />
+        <a href="{% url 'django_data_sync:sync_app_model_detail' sync_app_model.id %}" class="btn">Back to details</a>
+      </form>
+
+    </div>
+  </div>
+
+{% endblock content %}

@@ -1,0 +1,34 @@
+{% extends "django_data_sync/material/django_data_sync.html" %}
+
+
+{% block breadcrumbs %}
+  {{ block.super }}
+  <li>
+    <span class="divider">&raquo;</span>
+    <a href="{% url 'django_data_sync:sync_app_model_list' %}">App Models</a>
+  </li>
+{% endblock breadcrumbs %}
+
+
+{% block sidebar %}
+
+  {{ block.super }}
+
+  <li>
+    <a class="yay-sub-toggle waves-effect waves-blue"><i class="fa fa-database"></i> App Models</a>
+    <ul>
+      <li><a href="{% url 'django_data_sync:sync_app_model_list' %}"><i class="fa fa-list"></i> List App Models</a></li>
+      <!--PERMESSIHERE-->
+      {% if perms.django_data_sync.add_syncappmodel %}
+        <li>
+          <a href="{% url 'django_data_sync:sync_app_model_add' %}">
+            <i class="fa fa-plus"></i> Add App Model
+          </a>
+        </li>
+      {% endif %}
+      {% block sync_app_model_sidebar %}
+      {% endblock sync_app_model_sidebar %}
+    </ul>
+  </li>
+
+{% endblock sidebar %}

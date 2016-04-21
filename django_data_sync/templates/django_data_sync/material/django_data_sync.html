@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+
+
+{% block breadcrumbs %}
+  {{ block.super }}
+  <li>
+    <span class="divider">&raquo;</span>
+    <a href="{% url 'django_data_sync:django_data_sync' %}">Data Sync</a>
+  </li>
+{% endblock breadcrumbs %}

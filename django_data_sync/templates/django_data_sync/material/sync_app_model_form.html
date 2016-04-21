@@ -1,0 +1,57 @@
+{% extends location|yesno:"django_data_sync/material/sync_app_model_detail.html,django_data_sync/material/sync_app_model.html" %}
+
+
+{% block extra_css_plugins %}
+  {{ block.super }}
+  {% include "iga_django_static/css_forms.html" %}
+{% endblock extra_css_plugins %}
+
+
+{% block extra_scripts %}
+  {{ block.super }}
+  {% include "iga_django_static/scripts_forms.html" %}
+  {% include "django_helper_forms/shortcuts/js.html" %}
+  {% include "django_helper_forms/forms/material/scripts.html" %}
+  <script>
+  $(function(){
+    conApp.initSelect2();
+  })
+  </script>
+{% endblock extra_scripts %}
+
+
+{% block page_title %}
+  <i class="fa fa-database"></i>
+  {% if sync_app_model %}
+    Edit "{{ sync_app_model }}"
+  {% else %}
+    Create App Model
+  {% endif %}
+{% endblock page_title %}
+
+
+{% block breadcrumbs %}
+    {{ block.super }}
+    <li>
+        <span class="divider">&raquo;</span>
+        {% if sync_app_model %}
+            <a href="{{ request.get_full_path }}">Edit</a>
+        {% else %}
+            <a href="{{ request.get_full_path }}">Create</a>
+        {% endif %}
+    </li>
+{% endblock breadcrumbs %}
+
+
+{% block content %}
+
+<form action="{{ request.get_full_path }}" method="post" id="sync_app_model_form" class="django form-horizontal">
+{% csrf_token %}
+
+{% include "django_helper_forms/forms/material/form_template.html" %}
+
+{% include "django_helper_forms/forms/material/form_template_bottom.html" %}
+
+</form>
+        
+{% endblock content %}

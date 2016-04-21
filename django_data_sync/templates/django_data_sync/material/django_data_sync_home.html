@@ -1,0 +1,25 @@
+{% extends "django_data_sync/material/django_data_sync.html" %}
+
+
+{% block page_title %}
+  <i class="fa fa fa-refresh"></i> Data Sync
+{% endblock page_title %}
+
+
+{% block content %}
+
+  <div class="row">
+
+    <h4 class="red-text">Data Sync</h4>
+
+    <ul class="dashboard-icons">
+      <li>
+        <a href="{% url 'django_data_sync:sync_app_model_list' %}" title="App Models">
+          <i class="fa fa-5x fa-database"></i>
+          <span>App Models</span>
+        </a>
+      </li>
+    </ul>
+
+  </div>
+{% endblock content %}

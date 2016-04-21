@@ -1,0 +1,141 @@
+{% extends "django_data_sync/material/sync_app_model.html" %}
+
+
+{% block extra_scripts_page %}
+  <script>$(function(){$("#main_content").removeClass('white');})</script>
+{% endblock extra_scripts_page %}
+
+
+{% block page_title %}
+  <i class="fa fa-django_data_sync-sync_app_model"></i> {{ sync_app_model }}
+{% endblock page_title %}
+
+
+{% block page_title_actions %}
+  <!--PERMESSIHERE-->
+  {% if perms.django_data_sync.change_syncappmodel or perms.django_data_sync.delete_syncappmodel %}
+    <div class="btn-group right">
+      {% if perms.django_data_sync.change_syncappmodel %}
+        <a href="{% url 'django_data_sync:sync_app_model_edit' sync_app_model.id %}" class="btn btn-small z-depth-0">
+          <i class="fa fa-edit"></i>
+        </a>
+      {% endif %}
+      {% if perms.django_data_sync.delete_syncappmodel %}
+        <a href="{% url 'django_data_sync:sync_app_model_delete' sync_app_model.id %}" class="btn btn-small z-depth-0 red">
+          <i class="fa fa-times"></i>
+        </a>
+      {% endif %}
+    </div>
+  {% endif %}
+{% endblock page_title_actions %}
+
+
+{% block breadcrumbs %}
+  {{ block.super }}
+  <li>
+    <span class="divider">&raquo;</span>
+    <a href="{% url 'django_data_sync:sync_app_model_detail' sync_app_model.id %}">{{ sync_app_model }}</a>
+  </li>
+{% endblock breadcrumbs %}
+
+
+{% block sync_app_model_sidebar %}
+  {{ block.super }}
+  <!--PERMESSIHERE-->
+  {% if perms.django_data_sync.change_syncappmodel %}
+    <li>
+      <a href="{% url 'django_data_sync:sync_app_model_edit' sync_app_model.id %}">
+        <i class="fa fa-edit"></i>
+        Edit App Model
+      </a>
+    </li>
+  {% endif %}
+
+  <!--PERMESSIHERE-->
+  {% if perms.django_data_sync.delete_syncappmodel %}
+    <li>
+      <a href="{% url 'django_data_sync:sync_app_model_delete' sync_app_model.id %}">
+        <i class="fa fa-times"></i>
+        Delete App Model
+      </a>
+    </li>
+  {% endif %}
+{% endblock sync_app_model_sidebar %}
+
+
+
+{% block content %}
+
+  <div class="card-panel">
+    {% if sync_app_model.description %}
+      <div class="row no-margin-top">
+        <div class="col s12">
+          <div class="bs-callout bs-callout-info">
+            <p>{{ sync_app_model.description }}</p>
+          </div>
+        </div>
+      </div>
+    {% endif %}
+
+    <div class="row no-margin-top">
+      <div class="col s12 l6">
+        <h4>Details</h4>
+        <table class="table table-borderless">
+          <tr>
+            <th width="150">App Model</th>
+            <td>{{ sync_app_model.app_model }}</td>
+          </tr>
+          <tr>
+            <th>Last sync date</th>
+            <td>
+              {% if sync_app_model.last_sync_date %}
+                {{ sync_app_model.last_sync_date }} - {{ sync_app_model.last_sync_status }}
+              {% endif %}
+            </td>
+          </tr>
+          <tr>
+            <th>Requirements</th>
+            <td>
+              {% for requirement in sync_app_model.requirements.all %}
+                <a href="{{ requirement.get_absolute_url }}">{{ requirement }}</a>{% if not forloop.last %}, {% endif %}
+              {% endfor %}
+            </td>
+          </tr>
+        </table>
+      </div>
+
+      <div class="col s12 l6">
+        <h4>Get elements</h4>
+        <p>
+          <strong>Class path:</strong> {{ sync_app_model.get_elements_class_path }}
+        </p>
+        <table class="table table-condensed">
+          {% for k, v in sync_app_model.get_elements_data.iteritems %}
+            <tr>
+              <td width="150">{{ k }}</td>
+              <td>{{ v }}</td>
+            </tr>
+          {% endfor %}
+        </table>
+
+        <br />
+
+        <h4>Load elements</h4>
+        <p>
+          <strong>Class path:</strong> {{ sync_app_model.load_elements_class_path }}
+        </p>
+        <table class="table table-condensed">
+          {% for k, v in sync_app_model.load_elements_data.iteritems %}
+            <tr>
+              <td width="150">{{ k }}</td>
+              <td>{{ v }}</td>
+            </tr>
+          {% endfor %}
+        </table>
+
+      </div>
+    </div>
+
+  </div>
+
+{% endblock content %}

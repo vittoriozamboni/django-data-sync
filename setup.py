@@ -14,6 +14,7 @@ setup(
     ],
     dependency_links=[
         'https://github.com/yigor/django-jsonfield/archive/master.zip',
+        'https://bitbucket.org/zamboni/connection-manager/get/tip.zip#egg=connection_manager',
         'https://bitbucket.org/zamboni/django-helper-forms/get/tip.zip#egg=django_helper_forms',
         'https://bitbucket.org/zamboni/django-utils/get/tip.zip#egg=django_utils',
     ],
