@@ -1,0 +1,16 @@
+{% load django_data_sync_filters %}
+
+<table class="table table-condensed table-marginless {% if borderless == 1 %}table-borderless{% endif %}">
+  {% for k, v in options.iteritems %}
+    <tr>
+      <td width="150">{{ k }}</td>
+      <td>
+        {% if v|is_dict %}
+          {% include "django_data_sync/material/print_options.html" with options=v borderless=1 %}
+        {% else %}
+          {{ v }}
+        {% endif %}
+      </td>
+    </tr>
+  {% endfor %}
+</table>

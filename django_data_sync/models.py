@@ -51,7 +51,7 @@ class SyncAppModel(models.Model):
     @staticmethod
     def get_class(class_path):
         class_package = '.'.join(class_path.split('.')[:-1])
-        class_name = class_path.split('.')[1]
+        class_name = class_path.split('.')[-1]
         class_import = __import__(class_package, fromlist=[class_name, ])
         return getattr(class_import, class_name)
 

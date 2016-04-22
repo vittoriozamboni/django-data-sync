@@ -7,7 +7,7 @@
 
 
 {% block page_title %}
-  <i class="fa fa-django_data_sync-sync_app_model"></i> {{ sync_app_model }}
+  <i class="fa fa-database"></i> {{ sync_app_model }}
 {% endblock page_title %}
 
 
@@ -15,6 +15,11 @@
   <!--PERMESSIHERE-->
   {% if perms.django_data_sync.change_syncappmodel or perms.django_data_sync.delete_syncappmodel %}
     <div class="btn-group right">
+      {% if perms.django_data_sync.add_syncappmodel %}
+        <a href="{% url 'django_data_sync:sync_app_model_copy' sync_app_model.id %}" class="btn btn-small z-depth-0">
+          <i class="fa fa-copy"></i>
+        </a>
+      {% endif %}
       {% if perms.django_data_sync.change_syncappmodel %}
         <a href="{% url 'django_data_sync:sync_app_model_edit' sync_app_model.id %}" class="btn btn-small z-depth-0">
           <i class="fa fa-edit"></i>
@@ -109,14 +114,7 @@
         <p>
           <strong>Class path:</strong> {{ sync_app_model.get_elements_class_path }}
         </p>
-        <table class="table table-condensed">
-          {% for k, v in sync_app_model.get_elements_data.iteritems %}
-            <tr>
-              <td width="150">{{ k }}</td>
-              <td>{{ v }}</td>
-            </tr>
-          {% endfor %}
-        </table>
+        {% include "django_data_sync/material/print_options.html" with options=sync_app_model.get_elements_data %}
 
         <br />
 
@@ -124,14 +122,7 @@
         <p>
           <strong>Class path:</strong> {{ sync_app_model.load_elements_class_path }}
         </p>
-        <table class="table table-condensed">
-          {% for k, v in sync_app_model.load_elements_data.iteritems %}
-            <tr>
-              <td width="150">{{ k }}</td>
-              <td>{{ v }}</td>
-            </tr>
-          {% endfor %}
-        </table>
+        {% include "django_data_sync/material/print_options.html" with options=sync_app_model.load_elements_data %}
 
       </div>
     </div>

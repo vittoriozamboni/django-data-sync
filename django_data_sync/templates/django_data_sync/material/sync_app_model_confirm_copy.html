@@ -1,0 +1,39 @@
+{% extends "django_data_sync/material/sync_app_model_detail.html" %}
+
+
+{% block page_title %}
+  <i class="fa fa-database"></i> Copy App Model
+{% endblock page_title %}
+
+
+{% block breadcrumbs %}
+  {{ block.super }}
+  <li>
+    <span class="divider">&raquo;</span>
+    <a href="{% url 'django_data_sync:sync_app_model_copy' sync_app_model.id %}">Copy</a>
+  </li>
+{% endblock breadcrumbs %}
+
+
+{% block content %}
+
+  <div class="bs-callout bs-callout-info">
+    <h3>{{ sync_app_model }}</h3>
+    <p>Are you sure you want to copy this App Model?</p>
+    <div>
+      <form action="{% url 'django_data_sync:sync_app_model_copy' sync_app_model.id %}" method="post">
+        {% csrf_token %}
+
+        {% include "django_helper_forms/forms/material/form_template.html" %}
+
+        <div class="align-center">
+
+          <input type="submit" class="btn green" value="Copy" />
+          <a href="{% url 'django_data_sync:sync_app_model_detail' sync_app_model.id %}" class="btn">Back to details</a>
+        </div>
+      </form>
+
+    </div>
+  </div>
+
+{% endblock content %}

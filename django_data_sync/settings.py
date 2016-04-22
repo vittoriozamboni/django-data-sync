@@ -4,6 +4,7 @@ from django.conf import settings
 DJANGO_DATA_SYNC_SETTINGS = getattr(settings, 'DJANGO_DATA_SYNC_SETTINGS', {})
 
 DJANGO_DATA_SYNC = {
+    'CONTROLLER_CLASS': DJANGO_DATA_SYNC_SETTINGS.get('CONTROLLER_CLASS', 'DictController'),
     'TEMPLATE_STYLE': DJANGO_DATA_SYNC_SETTINGS.get('TEMPLATE_STYLE', 'material'),
 }
 
