@@ -20,6 +20,8 @@ class SyncAppModel(models.Model):
         default='django_data_sync.loaders.Base')
     load_elements_data_json = JSONField(default={}, blank=True,
         load_kwargs={'object_pairs_hook': OrderedDict})
+    last_sync_info_json = JSONField(default={}, blank=True,
+        load_kwargs={'object_pairs_hook': OrderedDict})
 
     def __init__(self, *args, **kwargs):
         super(SyncAppModel, self).__init__(*args, **kwargs)
@@ -47,6 +49,14 @@ class SyncAppModel(models.Model):
     @load_elements_data.setter
     def load_elements_data(self, data):
         self.load_elements_data_json = data
+
+    @property
+    def last_sync_info(self):
+        return self.last_sync_info_json
+
+    @last_sync_info.setter
+    def last_sync_info(self, data):
+        self.last_sync_info_json = data
 
     @staticmethod
     def get_class(class_path):

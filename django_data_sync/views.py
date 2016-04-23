@@ -7,7 +7,7 @@ from braces.views import LoginRequiredMixin, JSONResponseMixin
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView, FormView
 from django.views.generic.base import TemplateView, View
 
-from django_data_sync import models, settings, forms
+from django_data_sync import models, settings, forms, sync
 
 TS = settings.DJANGO_DATA_SYNC['TEMPLATE_STYLE']
 
@@ -89,16 +89,12 @@ class SyncAppModelSyncView(LoginRequiredMixin, JSONResponseMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(SyncAppModelSyncView, self).get_context_data(**kwargs)
-        #context['form'] = forms.SyncAppModelSyncForm()
+        context['sync_app_model'] = \
+            models.SyncAppModel.objects.get(app_model=self.request.GET['sync_app_model'])
         return context
 
     def post(self, request, *args, **kwargs):
-        context = super(SyncAppModelSyncView, self).get_context_data(**kwargs)
-        '''
-        form = forms.SyncAppModelSyncForm(request.POST)
-        if form.is_valid():
-            return HttpResponseRedirect(
-                reverse('django_data_sync:sync_app_models_sync_app_model_list'))
-        context['form'] = form
-        '''
-        return self.render_to_response(context)
+        context = self.get_context_data(**kwargs)
+        results = sync.sync_app_models(context['sync_app_model'])
+        res = {'results': results, 'app_model': context['sync_app_model'].app_model}
+        return self.render_json_response(res)

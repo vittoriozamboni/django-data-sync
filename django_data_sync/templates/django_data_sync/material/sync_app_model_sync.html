@@ -1,0 +1,85 @@
+{% extends "django_data_sync/material/sync_app_model_detail.html" %}
+
+
+{% block extra_css_plugins %}
+  {{ block.super }}
+  {% include "iga_django_static/css_forms.html" %}
+{% endblock extra_css_plugins %}
+
+
+{% block extra_scripts %}
+  {{ block.super }}
+  <script>
+    function sync_app_model_sync(){
+      $("#sync_loading").show();
+      $("#sync_result").html('');
+      $("#sync_status").hide();
+      console.log('Start sync');
+      $.ajax({
+        type: "POST",
+        url: "{{ request.get_full_path }}",
+        data: $("sync_app_model_sync_form").serialize(),
+        success: function(response){
+          console.log('Sync completed');
+          console.log(response);
+          $("#sync_loading").hide();
+          $("#sync_result").html(JSON.stringify(JSON.parse(response),null,2));
+          $("#sync_status").show();
+        }
+      });
+    }
+  </script>
+{% endblock extra_scripts %}
+
+
+{% block page_title %}
+  <i class="fa fa-database"></i>
+  {% if sync_app_model %}
+    Edit "{{ sync_app_model }}"
+  {% else %}
+    Create App Model
+  {% endif %}
+{% endblock page_title %}
+
+
+{% block breadcrumbs %}
+  {{ block.super }}
+  <li>
+    <span class="divider">&raquo;</span>
+    {% if sync_app_model %}
+      <a href="{{ request.get_full_path }}">Edit</a>
+    {% else %}
+      <a href="{{ request.get_full_path }}">Create</a>
+    {% endif %}
+  </li>
+{% endblock breadcrumbs %}
+
+
+{% block content %}
+
+  <form action="{{ request.get_full_path }}" method="post" id="sync_app_model_sync_form" class="django form-horizontal">
+    {% csrf_token %}
+
+
+    <div class="row">
+      <div class="col s12">
+        <h5>Sync {{ sync_app_model }}</h5>
+        <button class="btn" type="button" onclick="sync_app_model_sync();">Start sync</button>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col s12 padding center-align" id="sync_loading" style="display: none">
+        <img src="{{ STATIC_URL }}django_data_sync/images/loader.gif" alt="Loading" />
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col s12 padding" id="sync_status" style="display: none">
+        <pre id="sync_result"></pre>
+      </div>
+    </div>
+
+  </form>
+
+{% endblock content %}

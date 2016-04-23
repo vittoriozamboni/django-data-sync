@@ -88,7 +88,7 @@ class DictController(BaseController):
             self.queue.append(app_model)
             return
 
-        submit_code = kwargs.get('submit_code', uuid.uuid4())
+        submit_code = kwargs.get('submit_code', '%s' % uuid.uuid4())
         submission_date = kwargs.get('submission_date', datetime.datetime.now())
         dependencies = kwargs.get('dependencies', [])
         is_dependency = kwargs.get('is_dependency', False)

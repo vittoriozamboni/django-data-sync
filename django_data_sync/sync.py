@@ -19,7 +19,7 @@ def ordered_app_model_instances(app_model_instance):
 
 def setup_sync_app_model(app_model_instance, submit_code=None, is_dependency=False):
     if submit_code is None:
-        submit_code = uuid.uuid4()
+        submit_code = '%s' % uuid.uuid4()
 
     requires = app_model_instance.requires.all()
     dependencies = []
@@ -56,6 +56,14 @@ def sync_app_model(app_model_instance):
     app_model_data = sync_controller.get_app_model(app_model_instance.app_model)
 
     app_model_instance.last_sync_date = app_model_data['completion_date']
+    last_sync_info = {k: v for k, v in app_model_data.iteritems()}
+    last_sync_info['submission_date'] = \
+        last_sync_info['submission_date'].strftime("%Y-%m-%d %H:%M:%S")
+    last_sync_info['completion_date'] = \
+        last_sync_info['completion_date'].strftime("%Y-%m-%d %H:%M:%S")
+    last_sync_info['start_date'] = \
+        last_sync_info['start_date'].strftime("%Y-%m-%d %H:%M:%S")
+    last_sync_info['submit_code'] = '%s' % last_sync_info['submit_code']
     app_model_instance.save()
 
     if not app_model_data['is_dependency']:

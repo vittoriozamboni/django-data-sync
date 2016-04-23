@@ -16,6 +16,11 @@
   {% if perms.django_data_sync.change_syncappmodel or perms.django_data_sync.delete_syncappmodel %}
     <div class="btn-group right">
       {% if perms.django_data_sync.add_syncappmodel %}
+        <a href="{% url 'django_data_sync:sync_app_model_sync' %}?sync_app_model={{ sync_app_model.app_model }}" class="btn btn-small z-depth-0 margin-right">
+          <i class="fa fa-refresh"></i>
+        </a>
+      {% endif %}
+      {% if perms.django_data_sync.add_syncappmodel %}
         <a href="{% url 'django_data_sync:sync_app_model_copy' sync_app_model.id %}" class="btn btn-small z-depth-0">
           <i class="fa fa-copy"></i>
         </a>

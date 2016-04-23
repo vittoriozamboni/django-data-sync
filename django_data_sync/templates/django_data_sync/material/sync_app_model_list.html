@@ -9,17 +9,6 @@
 {% endblock page_title %}
 
 
-{% block page_title_actions %}
-  {% if perms.django_data_sync.addsyncappmodel %}
-    <div class="btn-group right">
-      <a href="{% url 'django_data_sync:sync_app_model_add' %}" class="btn btn-small">
-        <i class="fa fa-plus"></i>
-      </a>
-    </div>
-  {% endif %}
-{% endblock page_title_actions %}
-
-
 {% block content %}
 
   <table class="table table-striped table-objects-list table-hover" id="sync_app_models_list">

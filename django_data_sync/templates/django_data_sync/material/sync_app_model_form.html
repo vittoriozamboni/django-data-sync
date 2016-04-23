@@ -1,4 +1,4 @@
-{% extends location|yesno:"django_data_sync/material/sync_app_model_detail.html,django_data_sync/material/sync_app_model.html" %}
+{% extends sync_app_model|yesno:"django_data_sync/material/sync_app_model_detail.html,django_data_sync/material/sync_app_model.html" %}
 
 
 {% block extra_css_plugins %}
