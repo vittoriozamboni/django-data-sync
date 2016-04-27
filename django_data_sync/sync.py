@@ -8,7 +8,6 @@ sync_controller = controller.get_controller(settings.DJANGO_DATA_SYNC['CONTROLLE
 
 def ordered_app_model_instances(app_model_instance):
     requires = app_model_instance.requires.all()
-    print 'requires for %s: %s' % (app_model_instance, requires)
     requires_list = []
     if len(requires):
         for require in requires:
@@ -35,13 +34,15 @@ def setup_sync_app_model(app_model_instance, submit_code=None, is_dependency=Fal
     return sync_controller
 
 
-def sync_app_model(app_model_instance):
+def sync_app_model(app_model_instance, **kwargs):
+    ignore_last_sync_date = kwargs.get('ignore_last_sync_date', False)
+
     sync_controller.start_sync(app_model_instance.app_model)
     try:
         e_get, e_load = (app_model_instance.get_elements_class(app_model_instance),
                          app_model_instance.load_elements_class(app_model_instance))
         sync_controller.add_message(app_model_instance.app_model, 'Get elements')
-        elements = e_get.get_elements()
+        elements = e_get.get_elements(auto_date=(not ignore_last_sync_date))
         sync_controller.add_message(app_model_instance.app_model,
                                     'Obtained %s elements' % len(elements))
         sync_controller.add_message(app_model_instance.app_model, 'Load elements')
@@ -71,10 +72,12 @@ def sync_app_model(app_model_instance):
     return app_model_data
 
 
-def sync_app_models(app_model_instance):
+def sync_app_models(app_model_instance, **kwargs):
+    ignore_last_sync_date = kwargs.get('ignore_last_sync_date', False)
     setup_sync_app_model(app_model_instance)
     app_model_instances = ordered_app_model_instances(app_model_instance)
     results = []
     for app_model_instance in app_model_instances:
-        results.append(sync_app_model(app_model_instance))
+        results.append(sync_app_model(app_model_instance,
+                                      ignore_last_sync_date=ignore_last_sync_date))
     return results

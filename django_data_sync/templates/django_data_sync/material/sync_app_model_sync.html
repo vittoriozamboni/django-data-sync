@@ -1,11 +1,17 @@
 {% extends "django_data_sync/material/sync_app_model_detail.html" %}
 
 
+{% load django_data_sync_filters %}
+
+
 {% block extra_css_plugins %}
   {{ block.super }}
   {% include "iga_django_static/css_forms.html" %}
 {% endblock extra_css_plugins %}
 
+
+{% block extra_scripts_page %}
+{% endblock extra_scripts_page %}
 
 {% block extra_scripts %}
   {{ block.super }}
@@ -15,10 +21,11 @@
       $("#sync_result").html('');
       $("#sync_status").hide();
       console.log('Start sync');
+      console.log($("#sync_app_model_sync_form").serialize());
       $.ajax({
         type: "POST",
         url: "{{ request.get_full_path }}",
-        data: $("sync_app_model_sync_form").serialize(),
+        data: $("#sync_app_model_sync_form").serialize(),
         success: function(response){
           console.log('Sync completed');
           console.log(response);
@@ -34,11 +41,7 @@
 
 {% block page_title %}
   <i class="fa fa-database"></i>
-  {% if sync_app_model %}
-    Edit "{{ sync_app_model }}"
-  {% else %}
-    Create App Model
-  {% endif %}
+  Sync "{{ sync_app_model }}"
 {% endblock page_title %}
 
 
@@ -64,7 +67,35 @@
     <div class="row">
       <div class="col s12">
         <h5>Sync {{ sync_app_model }}</h5>
-        <button class="btn" type="button" onclick="sync_app_model_sync();">Start sync</button>
+
+        <div class="row">
+          <div class="col s12 m5">
+            <button class="btn" type="button" onclick="sync_app_model_sync();">Start sync</button>
+            <div class="input-field">
+              <input type="checkbox" id="sync_app_model_ignore_last_sync_date" name="ignore_last_sync_date" value="1" />
+              <label for="sync_app_model_ignore_last_sync_date">Ignore last sync date (sync all)</label>
+            </div>
+          </div>
+          <div class="col s12 m7">
+            <table class="table table-borderless">
+              <tr>
+                <th width="200">Sync models</th>
+                <td>
+                  {% with app_models_list=sync_app_model|ordered_app_model_instances_list %}
+                    {% for app_model in app_models_list %}
+                      {{ app_model }}{% if not forloop.last %}, {% endif %}
+                    {% endfor %}
+                  {% endwith %}
+                </td>
+              </tr>
+              <tr>
+                <th width="200">Last sync</th>
+                <td>{{ sync_app_model.last_sync_date }}</td>
+              </tr>
+            </table>
+          </div>
+        </div>
+
       </div>
     </div>
 

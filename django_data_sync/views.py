@@ -95,6 +95,8 @@ class SyncAppModelSyncView(LoginRequiredMixin, JSONResponseMixin, TemplateView):
 
     def post(self, request, *args, **kwargs):
         context = self.get_context_data(**kwargs)
-        results = sync.sync_app_models(context['sync_app_model'])
+        ignore_last_sync_date = self.request.POST.get('ignore_last_sync_date', False) == '1'
+        results = sync.sync_app_models(context['sync_app_model'],
+                                       ignore_last_sync_date=ignore_last_sync_date)
         res = {'results': results, 'app_model': context['sync_app_model'].app_model}
         return self.render_json_response(res)
