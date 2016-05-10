@@ -57,6 +57,7 @@ def sync_app_model(app_model_instance, **kwargs):
     app_model_data = sync_controller.get_app_model(app_model_instance.app_model)
 
     app_model_instance.last_sync_date = app_model_data['completion_date']
+    app_model_instance.last_sync_status = status
     last_sync_info = {k: v for k, v in app_model_data.iteritems()}
     last_sync_info['submission_date'] = \
         last_sync_info['submission_date'].strftime("%Y-%m-%d %H:%M:%S")
