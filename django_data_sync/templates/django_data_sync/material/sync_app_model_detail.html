@@ -111,7 +111,73 @@
               {% endfor %}
             </td>
           </tr>
+          <tr>
+            <th>Auto sync</th>
+            <td>{{ sync_app_model.auto_sync }}</td>
+          </tr>
         </table>
+
+        <h4>Last sync info</h4>
+        <table class="table">
+        <tr>
+          <th width="150">Status</th>
+          <td>{{ sync_app_model.last_sync_info.status }}</td>
+        </tr>
+        <tr>
+          <th>Submit code</th>
+          <td>{{ sync_app_model.last_sync_info.submit_code }}</td>
+        </tr>
+        <tr>
+          <th>As dependency</th>
+          <td>{{ sync_app_model.last_sync_info.is_dependency }}</td>
+        </tr>
+        {% if sync_app_model.last_sync_info.dependencies %}
+          <tr>
+            <th>Dependencies</th>
+            <td><ul>{{ sync_app_model.last_sync_info.dependencies|unordered_list }}</ul></td>
+          </tr>
+        {% endif %}
+        <tr>
+          <th>Submission date</th>
+          <td>{{ sync_app_model.last_sync_info.submission_date }}</td>
+        </tr>
+        <tr>
+          <th>Start date</th>
+          <td>{{ sync_app_model.last_sync_info.start_date }}</td>
+        </tr>
+        <tr>
+          <th>Completion date</th>
+          <td>{{ sync_app_model.last_sync_info.completion_date }}</td>
+        </tr>
+        <tr>
+          <th>Messages</th>
+          <td>
+            <table class="table table-borderless table-condensed">
+            {% for message in sync_app_model.last_sync_info.messages %}
+              <tr>
+                <td width="160">{{ message.0 }}</td>
+                <td>{{ message.1 }}</td>
+              </tr>
+            {% endfor %}
+            </table>
+          </td>
+        </tr>
+        {% if sync_app_model.last_sync_info.synced_elements %}
+        <tr>
+          <th>Synced elements</th>
+          <td>
+            <table class="table table-borderless table-condensed">
+            {% for element in sync_app_model.last_sync_info.synced_elements %}
+              <tr>
+                <td>{{ element }}</td>
+              </tr>
+            {% endfor %}
+            </table>
+          </td>
+        </tr>
+        {% endif %}
+        </table>
+
       </div>
 
       <div class="col s12 l6">

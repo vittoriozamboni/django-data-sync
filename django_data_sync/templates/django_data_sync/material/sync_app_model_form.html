@@ -7,8 +7,7 @@
 {% endblock extra_css_plugins %}
 
 
-{% block extra_scripts %}
-  {{ block.super }}
+{% block extra_scripts_page %}
   {% include "iga_django_static/scripts_forms.html" %}
   {% include "django_helper_forms/shortcuts/js.html" %}
   {% include "django_helper_forms/forms/material/scripts.html" %}
@@ -17,7 +16,7 @@
     conApp.initSelect2();
   })
   </script>
-{% endblock extra_scripts %}
+{% endblock extra_scripts_page %}
 
 
 {% block page_title %}

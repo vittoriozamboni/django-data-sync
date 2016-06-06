@@ -22,6 +22,7 @@ class SyncAppModel(models.Model):
         load_kwargs={'object_pairs_hook': OrderedDict})
     last_sync_info_json = JSONField(default={}, blank=True,
         load_kwargs={'object_pairs_hook': OrderedDict})
+    auto_sync = models.BooleanField(default=False)
 
     def __init__(self, *args, **kwargs):
         super(SyncAppModel, self).__init__(*args, **kwargs)

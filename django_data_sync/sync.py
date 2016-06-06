@@ -44,6 +44,8 @@ def sync_app_model(app_model_instance, **kwargs):
         sync_controller.add_message(app_model_instance.app_model, 'Get elements')
         elements = e_get.get_elements(auto_date=(not ignore_last_sync_date))
         sync_controller.add_message(app_model_instance.app_model,
+                                    'Connected to %s' % e_get.request_result.request.url)
+        sync_controller.add_message(app_model_instance.app_model,
                                     'Obtained %s elements' % len(elements))
         sync_controller.add_message(app_model_instance.app_model, 'Load elements')
         synced_elements = e_load.load_elements(elements)
@@ -66,6 +68,7 @@ def sync_app_model(app_model_instance, **kwargs):
     last_sync_info['start_date'] = \
         last_sync_info['start_date'].strftime("%Y-%m-%d %H:%M:%S")
     last_sync_info['submit_code'] = '%s' % last_sync_info['submit_code']
+    app_model_instance.last_sync_info = last_sync_info
     app_model_instance.save()
 
     if not app_model_data['is_dependency']:
@@ -82,3 +85,7 @@ def sync_app_models(app_model_instance, **kwargs):
         results.append(sync_app_model(app_model_instance,
                                       ignore_last_sync_date=ignore_last_sync_date))
     return results
+
+
+def get_sync_controller():
+    return sync_controller
