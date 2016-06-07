@@ -1,7 +1,13 @@
-import settings
+import logging
 import uuid
 
 from controllers import controller
+import settings, models, notifications
+
+
+logging.basicConfig()
+logger = logging.getLogger('Dashboard')
+
 
 sync_controller = controller.get_controller(settings.DJANGO_DATA_SYNC['CONTROLLER_CLASS'])
 
@@ -36,25 +42,30 @@ def setup_sync_app_model(app_model_instance, submit_code=None, is_dependency=Fal
 
 def sync_app_model(app_model_instance, **kwargs):
     ignore_last_sync_date = kwargs.get('ignore_last_sync_date', False)
+    dependency_failed = kwargs.get('dependency_failed', False)
 
     sync_controller.start_sync(app_model_instance.app_model)
-    try:
-        e_get, e_load = (app_model_instance.get_elements_class(app_model_instance),
-                         app_model_instance.load_elements_class(app_model_instance))
-        sync_controller.add_message(app_model_instance.app_model, 'Get elements')
-        elements = e_get.get_elements(auto_date=(not ignore_last_sync_date))
-        sync_controller.add_message(app_model_instance.app_model,
-                                    'Connected to %s' % e_get.request_result.request.url)
-        sync_controller.add_message(app_model_instance.app_model,
-                                    'Obtained %s elements' % len(elements))
-        sync_controller.add_message(app_model_instance.app_model, 'Load elements')
-        synced_elements = e_load.load_elements(elements)
-        sync_controller.set_synced_elements(app_model_instance.app_model, synced_elements)
-        status = 'success'
-        message = None
-    except Exception as e:
+    if not dependency_failed:
+        try:
+            e_get, e_load = (app_model_instance.get_elements_class(app_model_instance),
+                             app_model_instance.load_elements_class(app_model_instance))
+            sync_controller.add_message(app_model_instance.app_model, 'Get elements')
+            elements = e_get.get_elements(auto_date=(not ignore_last_sync_date))
+            sync_controller.add_message(app_model_instance.app_model,
+                                        'Connected to %s' % e_get.request_result.request.url)
+            sync_controller.add_message(app_model_instance.app_model,
+                                        'Obtained %s elements' % len(elements))
+            sync_controller.add_message(app_model_instance.app_model, 'Load elements')
+            synced_elements = e_load.load_elements(elements)
+            sync_controller.set_synced_elements(app_model_instance.app_model, synced_elements)
+            status = 'success'
+            message = None
+        except Exception as e:
+            status = 'failed'
+            message = 'Error during sync: %s' % str(e)
+    else:
         status = 'failed'
-        message = 'Error during sync: %s' % str(e)
+        message = 'Dependency failed'
     sync_controller.complete_sync(app_model_instance.app_model, status, message=message)
     app_model_data = sync_controller.get_app_model(app_model_instance.app_model)
 
@@ -71,6 +82,8 @@ def sync_app_model(app_model_instance, **kwargs):
     app_model_instance.last_sync_info = last_sync_info
     app_model_instance.save()
 
+    app_model_data['status'] = status
+
     if not app_model_data['is_dependency']:
         sync_controller.remove_app_model(app_model_instance.app_model)
     return app_model_data
@@ -81,11 +94,35 @@ def sync_app_models(app_model_instance, **kwargs):
     setup_sync_app_model(app_model_instance)
     app_model_instances = ordered_app_model_instances(app_model_instance)
     results = []
+    one_failed = False
     for app_model_instance in app_model_instances:
-        results.append(sync_app_model(app_model_instance,
-                                      ignore_last_sync_date=ignore_last_sync_date))
-    return results
+        sync_result = sync_app_model(app_model_instance,
+                                     ignore_last_sync_date=ignore_last_sync_date,
+                                     dependency_failed=one_failed)
+        results.append(sync_result)
+        if sync_result['status'] == 'failed':
+            one_failed = True
+    return {'success': not one_failed, 'results': results}
 
 
 def get_sync_controller():
     return sync_controller
+
+
+def auto_sync_app_models():
+    sync_operations = []
+    for app_model in models.SyncAppModel.objects.filter(auto_sync=True, last_sync_status='success'):
+        logger.info('Sync %s' % app_model)
+        sync_result = sync_app_models(app_model)
+        logger.info('%s Sync Results === %s ===' % (app_model, sync_result['success']))
+        for synced_model in sync_result['results']:
+            logger.info('  Synced %s: *** %s ***' %
+                        (synced_model['app_model'], synced_model['status']))
+            logger.info('  Messages:')
+            for message in synced_model['messages']:
+                logger.info('   - %s' % unicode(message[1]).encode())
+            logger.info('\n')
+        sync_operations.append([app_model, sync_result])
+
+    if settings.DJANGO_DATA_SYNC['NOTIFICATIONS']['function']:
+        notifications.sync_auto_sync_app_models(sync_operations)

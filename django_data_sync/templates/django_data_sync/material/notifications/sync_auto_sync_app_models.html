@@ -1,0 +1,29 @@
+{% for app_model, results in sync_operations %}
+  <div>
+    {% if results.success %}
+      <h4 style="color: #4caf50">{{ app_model }}</h4>
+      <div style="border: 1px solid #4caf50; padding:5px;">
+    {% else %}
+      <h4 style="color: #d32f2f">{{ app_model }}</h4>
+      <div style="border: 1px solid #d32f2f; padding:5px;">
+    {% endif %}
+
+    <table style="border: 0; width: 98%" cellpadding="2" cellspacing="2">
+    <tr>
+      <td>App model</td>
+      <td style="padding-left: 20px; padding-right: 20px;">#Synced</td>
+      <td style="width: 20px">Dep</td>
+    </tr>
+    {% for result in results.results %}
+      <tr>
+        <td>{{ result.app_model }}</td>
+        <td style="padding-left: 20px; padding-right: 20px;">{{ result.synced_elements|length }}</td>
+        <td style="width: 20px">{% if result.is_dependency %}Y{% endif %}</td>
+      </tr>
+    {% endfor %}
+    </table>
+
+    </div>
+  </div>
+  <br />
+{% endfor %}
