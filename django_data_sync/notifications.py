@@ -33,14 +33,12 @@ def send_notification(*args, **kwargs):
 
 def sync_auto_sync_app_models(sync_operations):
 
-    notify_statuses = list(set([s[0] for s in sync_operations]))
+    notify_statuses = list(set([s[1]['status'] for s in sync_operations]))
     if not settings.DJANGO_DATA_SYNC['NOTIFICATIONS']['statuses']:
         return
-    if settings.DJANGO_DATA_SYNC['NOTIFICATIONS']['statuses'] == 'failed' and \
-            'failed' not in notify_statuses:
-        return
-    if settings.DJANGO_DATA_SYNC['NOTIFICATIONS']['statuses'] == 'success' and \
-            'success' not in notify_statuses:
+    notification_statuses = settings.DJANGO_DATA_SYNC['NOTIFICATIONS']['statuses']
+    if not (('failed' in notification_statuses and 'failed' in notify_statuses) or \
+            ('success' in notification_statuses and 'success' in notify_statuses)):
         return
 
     notify_users = sync_get_recipients()

@@ -102,7 +102,7 @@ def sync_app_models(app_model_instance, **kwargs):
         results.append(sync_result)
         if sync_result['status'] == 'failed':
             one_failed = True
-    return {'success': not one_failed, 'results': results}
+    return {'status': 'success' if not one_failed else 'failed', 'results': results}
 
 
 def get_sync_controller():
@@ -114,7 +114,7 @@ def auto_sync_app_models():
     for app_model in models.SyncAppModel.objects.filter(auto_sync=True, last_sync_status='success'):
         logger.info('Sync %s' % app_model)
         sync_result = sync_app_models(app_model)
-        logger.info('%s Sync Results === %s ===' % (app_model, sync_result['success']))
+        logger.info('%s Sync Results === %s ===' % (app_model, sync_result['status']))
         for synced_model in sync_result['results']:
             logger.info('  Synced %s: *** %s ***' %
                         (synced_model['app_model'], synced_model['status']))
