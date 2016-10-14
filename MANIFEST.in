@@ -1,0 +1,6 @@
+include AUTHORS
+include LICENSE
+include README.md
+recursive-include docs *
+recursive-include django_data_sync/templates *
+recursive-include django_data_sync/static/django_data_sync *.js *.css *.png *.gif

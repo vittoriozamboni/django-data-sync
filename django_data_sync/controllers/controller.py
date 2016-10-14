@@ -17,43 +17,43 @@ class BaseController(object):
 
     @abc.abstractmethod
     def setup_app_model(self, app_model, **kwargs):
-        pass
+        raise NotImplementedError
 
     @abc.abstractmethod
     def get_app_model(self, app_model):
-        pass
+        raise NotImplementedError
 
     @abc.abstractmethod
     def get_status(self, app_model):
-        pass
+        raise NotImplementedError
 
     @abc.abstractmethod
     def set_status(self, app_model, status):
-        pass
+        raise NotImplementedError
 
     @abc.abstractmethod
     def set_resync(self, app_model, resync):
-        pass
+        raise NotImplementedError
 
     @abc.abstractmethod
     def add_message(self, app_model, message):
-        pass
+        raise NotImplementedError
 
     @abc.abstractmethod
     def set_start_date(self, app_model, **kwargs):
-        pass
+        raise NotImplementedError
 
     @abc.abstractmethod
     def set_completion_date(self, app_model, **kwargs):
-        pass
+        raise NotImplementedError
 
     @abc.abstractmethod
     def remove_from_queue(self, app_model):
-        pass
+        raise NotImplementedError
 
     @abc.abstractmethod
     def remove_app_model(self, app_model):
-        pass
+        raise NotImplementedError
 
     def start_sync(self, app_model, **kwargs):
         start_date = kwargs.get('start_date', None)

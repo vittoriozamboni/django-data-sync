@@ -13,6 +13,13 @@ sync_controller = controller.get_controller(settings.DJANGO_DATA_SYNC['CONTROLLE
 
 
 def ordered_app_model_instances(app_model_instance):
+    """
+    Get a list of requirements, with dependencies before the instance
+    :param app_model_instance: AppModel instance
+    :return: list of instances
+
+    TODO: delete duplicates
+    """
     requires = app_model_instance.requires.all()
     requires_list = []
     if len(requires):
@@ -23,6 +30,13 @@ def ordered_app_model_instances(app_model_instance):
 
 
 def setup_sync_app_model(app_model_instance, submit_code=None, is_dependency=False):
+    """
+    Setup controller for each app model and dependencies
+    :param app_model_instance: instance
+    :param submit_code: submit code, use for grouping the *initial* app and depencencies
+    :param is_dependency: is a dependency of someone else
+    :return:
+    """
     if submit_code is None:
         submit_code = '%s' % uuid.uuid4()
 
@@ -37,18 +51,30 @@ def setup_sync_app_model(app_model_instance, submit_code=None, is_dependency=Fal
                                     submit_code=submit_code, dependencies=dependencies,
                                     is_dependency=is_dependency)
 
+    # return controller for command line sync
     return sync_controller
 
 
 def sync_app_model(app_model_instance, **kwargs):
+    """
+    Sync the app model instance
+    :param app_model_instance:
+    :param kwargs:
+        - ignore_last_sync_date: sync from the beginning of time (all elements)
+        - dependency_failed: if a dependency has failed to sync (skip)
+    :return: controller entry of synced model
+    """
     ignore_last_sync_date = kwargs.get('ignore_last_sync_date', False)
     dependency_failed = kwargs.get('dependency_failed', False)
 
+    # Start synchronization (set time)
     sync_controller.start_sync(app_model_instance.app_model)
     if not dependency_failed:
         try:
+            # get elements instance for get and load data
             e_get, e_load = (app_model_instance.get_elements_class(app_model_instance),
                              app_model_instance.load_elements_class(app_model_instance))
+            # start by getting elements
             sync_controller.add_message(app_model_instance.app_model, 'Get elements')
             elements = e_get.get_elements(auto_date=(not ignore_last_sync_date))
             sync_controller.add_message(app_model_instance.app_model,
@@ -56,7 +82,9 @@ def sync_app_model(app_model_instance, **kwargs):
             sync_controller.add_message(app_model_instance.app_model,
                                         'Obtained %s elements' % len(elements))
             sync_controller.add_message(app_model_instance.app_model, 'Load elements')
+            # load elements
             synced_elements = e_load.load_elements(elements)
+            # terminate sync
             sync_controller.set_synced_elements(app_model_instance.app_model, synced_elements)
             status = 'success'
             message = None
@@ -66,9 +94,12 @@ def sync_app_model(app_model_instance, **kwargs):
     else:
         status = 'failed'
         message = 'Dependency failed'
+    # complete sync and set status
     sync_controller.complete_sync(app_model_instance.app_model, status, message=message)
+
     app_model_data = sync_controller.get_app_model(app_model_instance.app_model)
 
+    # copy metadata to django app model
     app_model_instance.last_sync_date = app_model_data['completion_date']
     app_model_instance.last_sync_status = status
     last_sync_info = {k: v for k, v in app_model_data.iteritems()}
@@ -84,12 +115,24 @@ def sync_app_model(app_model_instance, **kwargs):
 
     app_model_data['status'] = status
 
+    # if it is not a dependency, remove from the controller
     if not app_model_data['is_dependency']:
         sync_controller.remove_app_model(app_model_instance.app_model)
+
+    # return synced data
     return app_model_data
 
 
 def sync_app_models(app_model_instance, **kwargs):
+    """
+    Sync an app model and all dependencies
+    :param app_model_instance: initial instance
+    :param kwargs:
+        - ignore_last_sync_date: sync from the beginning of time (all elements)
+    :return: a dictionary with keys: values in form
+        - status: overall sync status
+        - results: a list of app model data (controller entries) for each synced app model
+    """
     ignore_last_sync_date = kwargs.get('ignore_last_sync_date', False)
     setup_sync_app_model(app_model_instance)
     app_model_instances = ordered_app_model_instances(app_model_instance)
@@ -106,10 +149,17 @@ def sync_app_models(app_model_instance, **kwargs):
 
 
 def get_sync_controller():
+    """
+    :return: controller instance (for command line sync)
+    """
     return sync_controller
 
 
 def auto_sync_app_models():
+    """
+    Auto sync all app models that has auto_sync set to True
+    :return: a list of all synced "groups"
+    """
     sync_operations = []
     for app_model in models.SyncAppModel.objects.filter(auto_sync=True, last_sync_status='success'):
         logger.info('Sync %s' % app_model)
@@ -126,3 +176,5 @@ def auto_sync_app_models():
 
     if settings.DJANGO_DATA_SYNC['NOTIFICATIONS']['function']:
         notifications.sync_auto_sync_app_models(sync_operations)
+
+    return sync_operations
