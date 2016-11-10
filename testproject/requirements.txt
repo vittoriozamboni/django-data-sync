@@ -1,7 +1,8 @@
 coverage
 django>=1.7
 django-braces
-httmocks>=1.2.5
+httmock>=1.2.5
+iso8601
 python-dateutil>=2.4
 unicodecsv
 
